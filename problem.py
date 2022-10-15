@@ -1,13 +1,15 @@
 import random
 from utils import max_edges
-from solution import exhaustive
+from solution import ExhaustiveSearch
 import time
 
 class Node:
 	def __init__(self, vertix: int):
 		self.vertix = vertix
 		self.next_node = None
-
+	
+	def __str__(self):
+		return f"V{self.vertix}({self.next_node})"
 
 class Graph:
 	def __init__(self, V: int):
@@ -16,12 +18,24 @@ class Graph:
 	
 	def add_edge(self, src:int, dest:int):
 		dest_node = Node(dest)
-		dest_node.next = self.adjacency_list[src]
+		dest_node.next_node = self.adjacency_list[src]
 		self.adjacency_list[src] = dest_node
 		
 		src_node = Node(src)
-		src_node.next = self.adjacency_list[dest]
+		src_node.next_node = self.adjacency_list[dest]
 		self.adjacency_list[dest] = src_node
+
+	def get_adjacent_nodes(self, position: int):		
+		node = self.adjacency_list[position]
+		nodes = [node]
+
+		while (True):
+			if node not in nodes:
+				nodes.append(node)
+			node = node.next_node
+			if not node:
+				break
+		return nodes
 
 	def __str__(self):
 		s = ""
@@ -30,10 +44,9 @@ class Graph:
             		temp = self.adjacency_list[i]
             		while temp:
                 		s+= f" -> V{temp.vertix} "
-                		temp = temp.next
+                		temp = temp.next_node
             		s+= " \n"
 		return s
-
 
 
 class Problem:
@@ -67,7 +80,7 @@ class Problem:
 		self.time = time.time()
 
 		
-
+		print([str(i) for i in self.graph.adjacency_list])
 		self.time = time.time() - self.time
 		self.results()
 
