@@ -1,14 +1,15 @@
+import random
 
 class Search:
 	def __init__(self, problem):
 		self.problem = problem
-		root = self.problem.graph.adjacency_list[0]
-		self.open_nodes = [root]
+		self.root = None
+		self.open_nodes = []
 
 	def search(self):
 		pass
 
-	def add_to_opens(sel):
+	def add_to_open_nodes(self):
 		pass
 
 class ExhaustiveSearch(Search):
@@ -16,8 +17,21 @@ class ExhaustiveSearch(Search):
 		super().__init__(problem)
 
 	def search(self):
-		while (self.open_nodes) != []:
-			node = self.open_nodes.pop(0)
+		solutions = []
+		for edge in self.problem.graph.edges:
+			C = []
+			root = edge
+			self.open_nodes = [root]
+		
+			while (self.open_nodes):
+				node = self.open_nodes.pop(0)
+				new_nodes = []
+				incident_edges = []
 
-			lnewnodes= []
-			adjacent_nodes = []
+				for vertix in node.get_vertixes():
+					C.append(vertix)
+					incident_edges += self.problem.graph.get_incident_edges(vertix)
+
+				new_nodes.append()
+
+	def add_to_open_nodes(self):

@@ -1,92 +1,79 @@
+
 import random
-from utils import max_edges
-from solution import ExhaustiveSearch
 import time
 
-class Node:
-	def __init__(self, vertix: int):
-		self.vertix = vertix
-		self.next_node = None
-	
-	def __str__(self):
-		return f"V{self.vertix}({self.next_node})"
+from solution import ExhaustiveSearch
+
+class Edge:
+    def __init__(self, v1, v2):
+        self.v1 = v1
+        self.v2 = v2
+
+    def get_vertixes(self):
+        return [self.v1, self.v2]
+
+    def __eq__(self, other):
+        return (isinstance(other, Edge) and (self.v1 + self.v2) == (other.v1 + other.v2))
+
+    def __str__(self):
+        return f"{self.v1}  -  {self.v2}"
 
 class Graph:
-	def __init__(self, V: int):
-		self.V = V
-		self.adjacency_list = [None] * V
-	
-	def add_edge(self, src:int, dest:int):
-		dest_node = Node(dest)
-		dest_node.next_node = self.adjacency_list[src]
-		self.adjacency_list[src] = dest_node
-		
-		src_node = Node(src)
-		src_node.next_node = self.adjacency_list[dest]
-		self.adjacency_list[dest] = src_node
+    def __init__(self, V, E):
+        self.V = V
+        self.E = E 
+        self.edges = []
 
-	def get_adjacent_nodes(self, position: int):		
-		node = self.adjacency_list[position]
-		nodes = [node]
+    def add_edge(self, src, dst):
+        new_edge = Edge(src, dst)
+        if new_edge not in self.edges:
+            self.edges.append(Edge(src, dst))
 
-		while (True):
-			if node not in nodes:
-				nodes.append(node)
-			node = node.next_node
-			if not node:
-				break
-		return nodes
+    def get_incident_edges(self, vertix):
+        return [edge for edge in self.edges if vertix in edge.get_vertixes()]
 
-	def __str__(self):
-		s = ""
-		for i in range(self.V):
-            		s += f"Adjacency list of  V{i}\n V{i} "
-            		temp = self.adjacency_list[i]
-            		while temp:
-                		s+= f" -> V{temp.vertix} "
-                		temp = temp.next_node
-            		s+= " \n"
-		return s
-
+    def print_graph(self):
+        s = ""
+        for e in self.edges:
+            print(e)
+            print()
+        print()
 
 class Problem:
-	def __init__(self, V: int, E: int):
-		self.V = V
-		self.E = E
-		self.graph = Graph(V)
-		max_E = max_edges(V)
-		if (E > max_E):
-			E = max_E
+    def __init__(self, V, E):
+        self.graph = Graph(V, E)
+        self.generate_random_edges(V, E)
+        self.solution = []
 
-		self.generate_random_edges(V, E)
-		self.time = 0
-		self.solution = []
+    def generate_random_edges(self, V, E):
+        generated_edges = []
+        v1 = 0
+        v2 = 0	
 
-	def generate_random_edges(self, V:int, E:int):
-		generated_edges = []
-		v1 = 0
-		v2 = 0	
+        for e in range(E):
+            while ((v1 == v2) or ((v1,v2) in generated_edges) or ((v2,v1) in generated_edges )):
+                v1 = random.randint(0, V-1)
+                v2 = random.randint(0, V-1)			
+            self.graph.add_edge(v1, v2)
+            generated_edges.append((v1,v2))
+            v1 = 0
+            v2 = 0
+    
+    def solve(self):
+        self.time = time.time()
+        es = ExhaustiveSearch(self)
+        es.search()
+        self.time = time.time() - self.time
+        self.results()
 
-		for e in range(E):
-			while ((v1 == v2) or ((v1,v2) in generated_edges) or ((v2,v1) in generated_edges )):
-				v1 = random.randint(0, V-1)
-				v2 = random.randint(0, V-1)			
-			self.graph.add_edge(v1, v2)
-			generated_edges.append((v1,v2))
-			v1 = 0
-			v2 = 0
+    def results(self):
+        print(f"V = {self.graph.V} | E = {self.graph.E}")
+        print(f"Finished in {self.time}")
+        print(f"Min Vertex Cover: {len(self.solution)}")
+        print(f"\t Vertex List: {self.solution}")
 
-	def solve(self):
-		self.time = time.time()
 
-		
-		print([str(i) for i in self.graph.adjacency_list])
-		self.time = time.time() - self.time
-		self.results()
 
-	def results(self):
-		print(f"V = {self.V} | E = {self.E}")
-		print(f"Finished in {self.time}")
-		print(f"Min Vertex Cover: {self.solution}")
+
 
 
