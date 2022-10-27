@@ -62,7 +62,7 @@ class Problem:
     def solve(self):
         self.time = time.time()
         es = ExhaustiveSearch(self)
-        es.search()
+        es.search2()
         self.time = time.time() - self.time
         self.results()
 
