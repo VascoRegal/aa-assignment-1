@@ -61,8 +61,9 @@ class ExhaustiveSearch(Search):
 		return self.path(node.parent) + [node.edge]
 
 	def search2(self):
-		solutions = []
+		solutions = {}
 		for root in self.root_nodes:
+			solutions[str(root.edge)] = []
 			self.open_nodes = [root]
 			while (self.open_nodes):
 				node = self.open_nodes.pop(0)				
@@ -76,8 +77,8 @@ class ExhaustiveSearch(Search):
 				if len(node.open_edges) == 0:
 					sol = []
 					for e in self.path(node):
-						sol += e .get_vertexes()
-					solutions.append(sol)
+						sol += e.get_vertexes()
+					solutions[str(root.edge)].append(sol) 
 
 				else:
 					vertixes = node.edge.get_vertexes()
@@ -91,4 +92,14 @@ class ExhaustiveSearch(Search):
 						next_open.remove(edge)
 						if not node.edge_in_parent(edge):
 							self.open_nodes.append(SearchNode(edge, next_open, node))
-		return min(solutions, key = lambda l: len(l))
+
+		for k, v in solutions.items():
+			if not solutions[k]:
+				solutions[k] = []
+			else:
+				solutions[k] = min(solutions[k], key = lambda l: len(l) if l else []) 
+		for k,v in solutions.items():
+			print(k)
+			print([str(vl) for vl in v])
+		exit(1)
+		exit(1)
