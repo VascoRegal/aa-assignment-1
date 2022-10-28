@@ -46,9 +46,9 @@ class Graph:
 
 
 class Problem:
-	def __init__(self, V: int):
+	def __init__(self, V: int, percent_edges: float):
 		self.V = V
-		self.E = int(0.5 * max_edges(V))
+		self.E = int(percent_edges/100 * max_edges(V))
 		self.graph = Graph(self.V, self.E)
 		self.visual = []
 		self.generate_graph()				

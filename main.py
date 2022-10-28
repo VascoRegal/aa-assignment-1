@@ -9,6 +9,11 @@ if __name__ == '__main__':
 						type=int,
 						help='Number of Vertexes in the Graph')
 
+	parser.add_argument('percent_edges',
+						type=float,
+						default=75,
+						help='\% edges of number of vertices')
+
 	parser.add_argument('-p',
 						action='store_true',
 						help='Show the graph in a plot (True / False)')
@@ -16,7 +21,7 @@ if __name__ == '__main__':
 
 	args = parser.parse_args()
 
-	p = Problem(args.vertexes)
+	p = Problem(args.vertexes, args.percent_edges)
 
 	if args.p:
 		p.plot_graph()
