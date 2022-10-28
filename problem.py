@@ -1,79 +1,111 @@
-
 import random
+
+from consts import NMEC, MIN_COORDS, MAX_COORDS
+from utils import max_edges
+from solution import MinVertexCoverSolver
+
+import networkx as nx
+import matplotlib.pyplot as plt
 import time
 
-from solution import ExhaustiveSearch
+random.seed(NMEC)
+
+class Vertex:
+	def __init__(self,id: str, x: int, y: int):
+		self.x = x
+		self.y = y
+		self.id = id
+
+	def __str__(self):
+		return str(f"V{self.id}({self.x}, {self.y})")
+
+	def __eq__(self, other):
+		return (isinstance(other, Vertex) and self.id == other.id) 
+	
+	def __hash__(self):
+		return self.id
 
 class Edge:
-    def __init__(self, v1, v2):
-        self.v1 = v1
-        self.v2 = v2
+	def __init__(self, v1: Vertex, v2: Vertex):
+		self.v1 = v1
+		self.v2 = v2
 
-    def get_vertixes(self):
-        return [self.v1, self.v2]
+	def get_vertexes(self):
+		return [self.v1, self.v2]
 
-    def __eq__(self, other):
-        return (isinstance(other, Edge) and (self.v1 + self.v2) == (other.v1 + other.v2))
-
-    def __str__(self):
-        return f"{self.v1}  -  {self.v2}"
+	def __str__(self):
+		return f"{self.v1.id} ---- {self.v2.id}"
 
 class Graph:
-    def __init__(self, V, E):
-        self.V = V
-        self.E = E 
-        self.edges = []
+	def __init__(self, V: int, E: int):
+		self.vertexes = []
+		self.edges = []
 
-    def add_edge(self, src, dst):
-        new_edge = Edge(src, dst)
-        if new_edge not in self.edges:
-            self.edges.append(Edge(src, dst))
+	def get_incident_edges(self, vertex):
+		return [edge for edge in self.edges if vertex in edge.get_vertexes()]
 
-    def get_incident_edges(self, vertix):
-        return [edge for edge in self.edges if vertix in edge.get_vertixes()]
-
-    def print_graph(self):
-        s = ""
-        for e in self.edges:
-            print(e)
-            print()
-        print()
 
 class Problem:
-    def __init__(self, V, E):
-        self.graph = Graph(V, E)
-        self.generate_random_edges(V, E)
-        self.solution = []
+	def __init__(self, V: int):
+		self.V = V
+		self.E = int(0.5 * max_edges(V))
+		self.graph = Graph(self.V, self.E)
+		self.visual = []
+		self.generate_graph()				
+		self.solution = []
+		self.time = 0
 
-    def generate_random_edges(self, V, E):
-        generated_edges = []
-        v1 = 0
-        v2 = 0	
+	def generate_graph(self):
+		positions = []
+		for i in range(self.V):
+			while True:
+				x = random.randint(MIN_COORDS, MAX_COORDS)
+				y = random.randint(MIN_COORDS, MAX_COORDS)
+				if (x, y) not in positions:
+					break
+			self.graph.vertexes.append(Vertex(i, x, y))
+	
+		edges = []
+		priority_vertexes = self.graph.vertexes.copy()
+		passed_vertexes = []
+		for i in range(self.E):
+			while True:
+				if (not priority_vertexes):
+					v1 = random.choice(self.graph.vertexes)
+				else:
+					v1 = priority_vertexes[0]
 
-        for e in range(E):
-            while ((v1 == v2) or ((v1,v2) in generated_edges) or ((v2,v1) in generated_edges )):
-                v1 = random.randint(0, V-1)
-                v2 = random.randint(0, V-1)			
-            self.graph.add_edge(v1, v2)
-            generated_edges.append((v1,v2))
-            v1 = 0
-            v2 = 0
-    
-    def solve(self):
-        self.time = time.time()
-        es = ExhaustiveSearch(self)
-        es.search2()
-        self.time = time.time() - self.time
-        self.results()
+				v2 = random.choice(self.graph.vertexes)	
+				if ((v1 != v2) and (((v1,v2) not in edges)) and ((v2,v1) not in edges)):
+					break
+			
+			if v1 in priority_vertexes: priority_vertexes.remove(v1)
+			if v2 in priority_vertexes: priority_vertexes.remove(v2)	
+			self.graph.edges.append(Edge(v1, v2))
+			self.visual.append([v1.id, v2.id]) 	
+			edges.append((v1,v2))
 
-    def results(self):
-        print(f"V = {self.graph.V} | E = {self.graph.E}")
-        print(f"Finished in {self.time}")
-        print(f"Min Vertex Cover: {len(self.solution)}")
-        print(f"\t Vertex List: {self.solution}")
+	def solve(self):
+		init = time.time()
+		solver = MinVertexCoverSolver(self)
+		self.solution = solver.solve()
+		self.time = time.time() - init
 
-
-
-
-
-
+	def results(self):
+		print(f"V = {self.V} | E = {self.E}")
+		print(f"Solution computed in {self.time} s")
+		print(f"Min Vertex Cover: {len(self.solution)}")
+		print(f"C = {[str(x) for x in self.solution]}")
+	
+	def plot_graph(self):
+		G = nx.Graph()
+		G.add_edges_from(self.visual)
+		nx.draw_networkx(G)
+		plt.show()
+			
+			
+if __name__ == '__main__':
+	p = Problem(6)
+	p.plot_graph()
+	p.solve()
+	p.results()
