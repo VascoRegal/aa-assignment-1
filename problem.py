@@ -103,9 +103,3 @@ class Problem:
 		nx.draw_networkx(G)
 		plt.show()
 			
-			
-if __name__ == '__main__':
-	p = Problem(6)
-	p.plot_graph()
-	p.solve()
-	p.results()
