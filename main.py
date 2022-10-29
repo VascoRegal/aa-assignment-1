@@ -14,16 +14,25 @@ if __name__ == '__main__':
 						default=75,
 						help='\% edges of number of vertices')
 
-	parser.add_argument('-p',
+	parser.add_argument('-p', '--plot',
 						action='store_true',
-						help='Show the graph in a plot (True / False)')
+						help='Show the graph in a plot')
+
+	
+	parser.add_argument('-e', '--export',
+						help='Export run to file')
 
 
 	args = parser.parse_args()
 
 	p = Problem(args.vertexes, args.percent_edges)
 
-	if args.p:
+	if args.plot:
 		p.plot_graph()
+
 	p.solve()
+
+	if args.export:
+		p.export(args.export)
+
 	p.results()

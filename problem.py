@@ -1,4 +1,5 @@
 import random
+import os
 
 from consts import NMEC, MIN_COORDS, MAX_COORDS
 from utils import max_edges
@@ -7,6 +8,7 @@ from solution import MinVertexCoverSolver
 import networkx as nx
 import matplotlib.pyplot as plt
 import time
+import json
 
 random.seed(NMEC)
 
@@ -102,4 +104,18 @@ class Problem:
 		G.add_edges_from(self.visual)
 		nx.draw_networkx(G)
 		plt.show()
+	
+	def export(self, output_folder):
+		if not os.path.exists(output_folder):
+			os.makedirs(output_folder)
+
+		with open(f"{output_folder}/{self.V}", 'w') as f:
+			json.dump({
+				"seed": NMEC,
+				"V": self.V,
+				"E": self.E,
+				"solution": [v.id for v in self.solution],
+				"time": self.time
+			}, f)
+	
 			
