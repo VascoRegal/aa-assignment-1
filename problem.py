@@ -106,11 +106,15 @@ class Problem:
 		self.time = time.time() - init
 
 	def results(self):
+		print()
+		print("#######################################")
 		print(f"V = {self.V} | E = {self.E}")
 		print(f"Greedy : {self.greedy}")
 		print(f"Solution computed in {self.time} s")
 		print(f"Min Vertex Cover: {len(self.solution)}")
 		print(f"C = {[str(x) for x in self.solution]}")
+		print("#######################################")
+		print()
 	
 	def plot_graph(self):
 		G = nx.Graph()
