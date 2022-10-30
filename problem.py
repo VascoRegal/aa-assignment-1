@@ -3,7 +3,7 @@ import os
 
 from consts import NMEC, MIN_COORDS, MAX_COORDS
 from utils import max_edges
-from solution import MinVertexCoverSolver
+from solution import GreedySolver, ExhaustiveSolver
 
 import networkx as nx
 import matplotlib.pyplot as plt
@@ -13,10 +13,11 @@ import json
 random.seed(NMEC)
 
 class Vertex:
-	def __init__(self,id: str, x: int, y: int):
+	def __init__(self,id: str, x: int, y: int, cost: int = 0):
 		self.x = x
 		self.y = y
 		self.id = id
+		self.cost = cost
 
 	def __str__(self):
 		return str(f"V{self.id}({self.x}, {self.y})")
@@ -46,15 +47,22 @@ class Graph:
 	def get_incident_edges(self, vertex):
 		return [edge for edge in self.edges if vertex in edge.get_vertexes()]
 
+	def get_neighbors(self, vertex):
+		N = []
+		for edge in self.get_incident_edges(vertex):
+			N.extend([v for v in edge.get_vertexes() if v != vertex])
+		return N
+
 
 class Problem:
-	def __init__(self, V: int, percent_edges: float):
+	def __init__(self, V: int, percent_edges: float, greedy: bool = False):
 		self.V = V
 		self.E = int(percent_edges/100 * max_edges(V))
 		self.graph = Graph(self.V, self.E)
 		self.visual = []
 		self.generate_graph()				
 		self.solution = []
+		self.greedy = greedy
 		self.time = 0
 
 	def generate_graph(self):
@@ -89,12 +97,17 @@ class Problem:
 
 	def solve(self):
 		init = time.time()
-		solver = MinVertexCoverSolver(self)
+		if self.greedy:
+			solver = GreedySolver(self)
+		else:
+			solver = ExhaustiveSolver(self)
+
 		self.solution = solver.solve()
 		self.time = time.time() - init
 
 	def results(self):
 		print(f"V = {self.V} | E = {self.E}")
+		print(f"Greedy : {self.greedy}")
 		print(f"Solution computed in {self.time} s")
 		print(f"Min Vertex Cover: {len(self.solution)}")
 		print(f"C = {[str(x) for x in self.solution]}")
@@ -109,8 +122,13 @@ class Problem:
 		if not os.path.exists(output_folder):
 			os.makedirs(output_folder)
 
-		with open(f"{output_folder}/{self.V}", 'w') as f:
+		file_name = f"{output_folder}/{self.V}"
+		if self.greedy:
+			file_name += " g"
+
+		with open(file_name, 'w') as f:
 			json.dump({
+				"greedy": self.greedy,
 				"seed": NMEC,
 				"V": self.V,
 				"E": self.E,

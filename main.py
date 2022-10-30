@@ -22,10 +22,13 @@ if __name__ == '__main__':
 	parser.add_argument('-e', '--export',
 						help='Export run to file')
 
+	parser.add_argument('-g', '--greedy',
+						action='store_true',
+						help='Use greedy heuristics')
 
 	args = parser.parse_args()
 
-	p = Problem(args.vertexes, args.percent_edges)
+	p = Problem(args.vertexes, args.percent_edges, args.greedy)
 
 	if args.plot:
 		p.plot_graph()
