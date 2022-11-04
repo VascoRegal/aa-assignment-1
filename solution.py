@@ -39,17 +39,40 @@ class GreedySolver(Solver):
 	def solve(self):
 		C = []
 		best_candidates = [v for v in self.problem.graph.vertexes]
-		
-		while len(self.edges_covered(C)) != self.problem.E:
+		best_candidates.remove(min(best_candidates, key=lambda v: self.score(C, v)))
+		while True:
+			if self.is_vertex_cover(C) and self.is_connected(C):
+				break
+
 			v = random.choice(best_candidates)
 			C.append(v)
-
-			best_candidates = self.total_neighbors(C)
-			if (len(best_candidates) != 1):
-				worst_candidate = min(best_candidates, key=lambda v: self.score(C, v))
-				best_candidates.remove(worst_candidate)
+			best_candidates = [v for v in self.total_neighbors(C)]
+			best_candidates.remove(min(best_candidates, key=lambda v: self.score(C, v)))
 		return C
 
+	def is_vertex_cover(self, subset):
+		for edge in self.problem.graph.edges:
+			u, v = edge.get_vertexes()
+			if not (u in subset or v in subset):
+				return False
+		return True
+
+	def is_connected(self, subset):
+		if not subset:
+			return False
+		visited = self.neighbor_search(subset[0], [])
+		if len(visited) == self.problem.V:
+			return True
+		return False
+
+	def neighbor_search(self, vertex, visited):
+		visited.append(vertex)
+
+		for n in self.problem.graph.get_neighbors(vertex):
+			if n not in visited:
+				self.neighbor_search(n, visited)
+		return visited
+		
 
 	def edges_covered(self, subset):
 		edges = []
@@ -62,7 +85,6 @@ class GreedySolver(Solver):
 	def solution_cost(self, subset):
 		return len([e for e in self.problem.graph.edges if e not in self.edges_covered(subset)])
 	
-
 	def score(self, subset, vertex):
 		return self.solution_cost(subset) - self.solution_cost(subset + [vertex])
 
