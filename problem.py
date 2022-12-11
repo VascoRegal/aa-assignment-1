@@ -3,10 +3,10 @@ import os
 
 from consts import NMEC, MIN_COORDS, MAX_COORDS
 from utils import max_edges
-from solution import GreedySolver, ExhaustiveSolver
+from solution import GreedySolver, ExhaustiveSolver, RandomizedSolver
 
 import networkx as nx
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import time
 import json
 
@@ -55,14 +55,14 @@ class Graph:
 
 
 class Problem:
-	def __init__(self, V: int, percent_edges: float, greedy: bool = False):
+	def __init__(self, V: int, percent_edges: float, solver: str = 'e'):
 		self.V = V
 		self.E = int(percent_edges/100 * max_edges(V))
 		self.graph = Graph(self.V, self.E)
 		self.visual = []
 		self.generate_graph()				
 		self.solution = []
-		self.greedy = greedy
+		self.solver = solver
 		self.time = 0
 
 	def generate_graph(self):
@@ -97,10 +97,12 @@ class Problem:
 
 	def solve(self):
 		init = time.time()
-		if self.greedy:
+		if self.solver == 'g':
 			solver = GreedySolver(self)
-		else:
+		elif self.solver == 'e':
 			solver = ExhaustiveSolver(self)
+		else:
+			solver = RandomizedSolver(self)
 
 		self.solution = solver.solve()
 		self.time = time.time() - init
@@ -109,7 +111,7 @@ class Problem:
 		print()
 		print("#######################################")
 		print(f"V = {self.V} | E = {self.E}")
-		print(f"Greedy : {self.greedy}")
+		print(f"Solver : {self.solver}")
 		print(f"Solution computed in {self.time} s")
 		print(f"Min Vertex Cover: {len(self.solution)}")
 		print(f"C = {[str(x) for x in self.solution]}")
@@ -127,12 +129,11 @@ class Problem:
 			os.makedirs(output_folder)
 
 		file_name = f"{output_folder}/{self.V}"
-		if self.greedy:
-			file_name += " g"
+		file_name += f" {self.solver}"
 
 		with open(file_name, 'w') as f:
 			json.dump({
-				"greedy": self.greedy,
+				"solver": self.solver,
 				"seed": NMEC,
 				"V": self.V,
 				"E": self.E,

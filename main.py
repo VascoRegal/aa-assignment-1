@@ -1,6 +1,8 @@
 from problem import Problem
 import argparse
 
+SOLVERS = ['e', 'g', 'r']
+
 if __name__ == '__main__':
 
 	parser = argparse.ArgumentParser(description = "Calculate min vertex cover of an undirected graph")
@@ -22,13 +24,16 @@ if __name__ == '__main__':
 	parser.add_argument('-e', '--export',
 						help='Export run to file')
 
-	parser.add_argument('-g', '--greedy',
-						action='store_true',
-						help='Use greedy heuristics')
+	parser.add_argument('-s', '--solver',
+						help='Shoose solver - (E)xhaustive | (G)reedy | (R)andomized')
 
 	args = parser.parse_args()
 
-	p = Problem(args.vertexes, args.percent_edges, args.greedy)
+
+
+	s = args.solver.lower() if args.solver else None
+
+	p = Problem(args.vertexes, args.percent_edges, args.solver)
 
 	if args.plot:
 		p.plot_graph()

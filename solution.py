@@ -34,6 +34,27 @@ class ExhaustiveSolver(Solver):
 			res.extend(list(itertools.combinations(lst, i)))
 		return res
 
+class RandomizedSolver(Solver):
+	def solve(self):
+		solution = []
+		covered_edges = []
+		for e in self.problem.graph.edges:
+			v1, v2 = e.get_vertexes()
+			is_covered = False
+			for covered in covered_edges:
+				vertexes = covered_edges.get_vertexes()
+				if v1 in vertexes or v2 in vertexes:
+					if v2.id not in solution:
+						solution.append((v2.id, 1))
+					is_covered = True
+					break
+			
+			if not is_covered and v1 not in solution:
+				solution.append((v1.id, 0.5))
+		print(solution)
+		return []
+			
+
 
 class GreedySolver(Solver):
 	def solve(self):
