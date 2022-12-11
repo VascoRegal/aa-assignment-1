@@ -26,14 +26,21 @@ if __name__ == '__main__':
 
 	parser.add_argument('-s', '--solver',
 						help='Shoose solver - (E)xhaustive | (G)reedy | (R)andomized')
+	parser.add_argument('-i', '--iters',
+						help='Random algorithm iterations')	
 
 	args = parser.parse_args()
 
 
 
 	s = args.solver.lower() if args.solver else None
+	kwargs = {}
+	if s and s == 'r':
+		iters = args.iters if args.iters else None
+		if iters:
+			kwargs['iters'] = int(iters)
 
-	p = Problem(args.vertexes, args.percent_edges, args.solver)
+	p = Problem(args.vertexes, args.percent_edges, args.solver, kwargs)
 
 	if args.plot:
 		p.plot_graph()

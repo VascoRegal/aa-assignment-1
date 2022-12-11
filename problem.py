@@ -55,7 +55,7 @@ class Graph:
 
 
 class Problem:
-	def __init__(self, V: int, percent_edges: float, solver: str = 'e'):
+	def __init__(self, V: int, percent_edges: float, solver: str = 'e', solver_kwargs={}):
 		self.V = V
 		self.E = int(percent_edges/100 * max_edges(V))
 		self.graph = Graph(self.V, self.E)
@@ -64,6 +64,7 @@ class Problem:
 		self.solution = []
 		self.solver = solver
 		self.time = 0
+		self.solver_kwargs = solver_kwargs
 
 	def generate_graph(self):
 		positions = []
@@ -104,7 +105,7 @@ class Problem:
 		else:
 			solver = RandomizedSolver(self)
 
-		self.solution = solver.solve()
+		self.solution = solver.solve(**self.solver_kwargs)
 		self.time = time.time() - init
 
 	def results(self):
@@ -138,7 +139,8 @@ class Problem:
 				"V": self.V,
 				"E": self.E,
 				"solution": [v.id for v in self.solution],
-				"time": self.time
+				"time": self.time,
+				"solver_args": self.solver_kwargs
 			}, f)
 	
 			

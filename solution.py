@@ -6,12 +6,12 @@ class Solver:
 		self.solution = []
 		self.problem = problem
 
-	def solve(self):
+	def solve(self, **kwargs):
 		pass
 
 
 class ExhaustiveSolver(Solver):
-	def solve(self):
+	def solve(self, **kwargs):
 		for subset in self.subsets(self.problem.graph.vertexes):
 			edges_covered = 0
 			visited_edges = []
@@ -35,29 +35,67 @@ class ExhaustiveSolver(Solver):
 		return res
 
 class RandomizedSolver(Solver):
-	def solve(self):
-		solution = []
-		covered_edges = []
-		for e in self.problem.graph.edges:
-			v1, v2 = e.get_vertexes()
-			is_covered = False
-			for covered in covered_edges:
-				vertexes = covered_edges.get_vertexes()
-				if v1 in vertexes or v2 in vertexes:
-					if v2.id not in solution:
-						solution.append((v2.id, 1))
-					is_covered = True
-					break
-			
-			if not is_covered and v1 not in solution:
-				solution.append((v1.id, 0.5))
-		print(solution)
-		return []
-			
+	def solve(self, **kwargs):
+		MAX_ITERS = kwargs.get("iters") or 1000
+		computed_solutions = []
+		best = []
+		cur_size = 3
+		for i in range(MAX_ITERS):
+			rand_mvc = self.get_random_mvc(min(cur_size, self.problem.V), computed_solutions)
+			if not rand_mvc:
+				cur_size += 1
+			else:
+				computed_solutions.append(rand_mvc)
+				if not best:
+					best = rand_mvc
 
+				elif len(rand_mvc) < len(best):
+					best = rand_mvc
+		return best
 
+	def get_random_mvc(self, size, computed_solutions):
+		starting_vertex = random.choice(self.problem.graph.vertexes)
+		mvc = [starting_vertex]
+		while (len(mvc) < size):
+
+			nxt = self.choose_next_vertex(mvc)
+			if not nxt:
+				if self.is_vertex_cover(mvc):
+					return mvc
+				else:
+					return None 
+
+			mvc.append(nxt)
+
+		if self.is_vertex_cover(mvc) and set(mvc) not in computed_solutions:
+			return mvc
+		return None
+
+	def total_neighbors(self, subset):
+		t = []
+		for v in subset:
+			neighbors = self.problem.graph.get_neighbors(v)
+			t += [elem for elem in neighbors if elem not in subset and elem not in t]
+		return t
+
+	def choose_next_vertex(self, subset):
+		neighbors = self.total_neighbors(subset)
+		available = [e for e in neighbors]
+
+		if not available:
+			return None
+		
+		return random.choice(available)
+
+	def is_vertex_cover(self, subset):
+		for edge in self.problem.graph.edges:
+			u, v = edge.get_vertexes()
+			if not (u in subset or v in subset):
+				return False
+		return True
+			
 class GreedySolver(Solver):
-	def solve(self):
+	def solve(self, **kwargs):
 		C = []
 		best_candidates = [v for v in self.problem.graph.vertexes]
 		best_candidates.remove(min(best_candidates, key=lambda v: self.score(C, v)))
