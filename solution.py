@@ -39,11 +39,15 @@ class RandomizedSolver(Solver):
 		MAX_ITERS = kwargs.get("iters") or 1000
 		computed_solutions = []
 		best = []
-		cur_size = 3
+		cur_size = 1
+		size_cnt = 0
 		for i in range(MAX_ITERS):
 			rand_mvc = self.get_random_mvc(min(cur_size, self.problem.V), computed_solutions)
+			size_cnt += 1
 			if not rand_mvc:
-				cur_size += 1
+				if size_cnt == self.problem.V:
+					cur_size += 1
+					size_cnt = 0
 			else:
 				computed_solutions.append(rand_mvc)
 				if not best:

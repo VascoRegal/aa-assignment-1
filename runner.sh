@@ -10,6 +10,7 @@ N=10
 edges=50
 file=""
 greedy='false'
+iter=1000
 
 while getopts v:n:e:f:g: flag
 do
@@ -18,7 +19,7 @@ do
         n) N=${OPTARG};;
         e) edges=${OPTARG};;
         f) file=${OPTARG};;
-        g) greedy='true';;
+        g) greedy=${OPTARG};;
     esac
 done
 
@@ -32,9 +33,9 @@ do
         command="$command -e $file "
     fi
 
-    if [[ "$greedy" == 'true' ]]
+    if [[ "$greedy" != "" ]]
     then
-        command="$command -g"
+        command="$command -s $greedy -i $iter"
     fi
 
     eval $command 

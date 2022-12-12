@@ -14,13 +14,13 @@ def load_runs(output_dir):
     return runs
 
 
-def greedy_vs_exhaustive_time_linear(greedy_runs, exhaustive_runs, log=False):
-    plt.plot(greedy_runs['V'], greedy_runs['time'], label="greedy")
-    plt.plot(exhaustive_runs['V'], exhaustive_runs['time'], label="exhaustive")
-
+def greedy_vs_exhaustive_time_linear(greedy_runs, exhaustive_runs, random, log=False):
+    #plt.plot(greedy_runs['V'], greedy_runs['time'], label="greedy")
+    #plt.plot(exhaustive_runs['V'], exhaustive_runs['time'], label="exhaustive")
+    plt.plot(random_runs['V'], random_runs['time'], label='random')
     plt.xlabel("Number of Vertexes")
     plt.ylabel("Execution Time (s) (log10)")
-    plt.title("Greedy vs Exhaustive execution time")
+    plt.title("Execution time E vs G vs R")
     plt.legend()
     plt.show()    
 
@@ -81,16 +81,16 @@ def aprox_error(exh, grd):
 
 df = pd.DataFrame(load_runs("./runs"))
 df['mvc'] = df['solution'].apply(lambda r: len(r))
-greedy_runs = df.loc[df['greedy'] == True].sort_values(by='V')
-exhaustive_runs = df.loc[df['greedy'] == False].sort_values(by='V')
+greedy_runs = df.loc[df['solver'] == 'g'].sort_values(by='V')
+exhaustive_runs = df.loc[df['solver'] == 'e'].sort_values(by='V')
+random_runs = df.loc[df['solver'] == 'r'].sort_values(by="V")
 
-
-#greedy_vs_exhaustive_time_linear(greedy_runs, exhaustive_runs)
-#print(data_to_tex_table(greedy_runs.drop(['seed', 'greedy', 'solution'], axis=1)))
-#print(data_to_tex_table(exhaustive_runs.drop(['seed', 'greedy', 'solution'], axis=1)))
+#greedy_vs_exhaustive_time_linear(greedy_runs, exhaustive_runs, random_runs)
+#print(data_to_tex_table(greedy_runs.drop(['seed', 'solver', 'solution'], axis=1)))
+#print(data_to_tex_table(random_runs.drop(['seed', 'solver', 'solution'], axis=1)))
 #mvc_results(greedy_runs, exhaustive_runs)
 
-g_fit(exhaustive_runs, greedy_goal)
-g_fit(greedy_runs, greedy_goal)
+#g_fit(exhaustive_runs, greedy_goal)
+#g_fit(random_runs, greedy_goal)
 
-#aprox_error(greedy_runs, exhaustive_runs)
+aprox_error(random_runs, exhaustive_runs)
